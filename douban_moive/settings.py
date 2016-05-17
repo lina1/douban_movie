@@ -51,6 +51,8 @@ NEWSPIDER_MODULE = 'douban_moive.spiders'
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
    # 'douban_moive.middlewares.MyCustomDownloaderMiddleware': 543,
+    'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware': None,
+    'douban_moive.middleware.rotate_useragent.RotateUserAgentMiddleware': 400,
 
 }
 

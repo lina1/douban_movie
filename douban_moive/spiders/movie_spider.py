@@ -16,9 +16,9 @@ class MovieSpider(CrawlSpider):
     name = "doubanmovie"
     allowed_domains = ["movie.douban.com"]
     start_urls = ["https://movie.douban.com/top250"]
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/601.5.17 (KHTML, like Gecko) Version/9.1 Safari/601.5.17"
-    }
+    # headers = {
+    #     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/601.5.17 (KHTML, like Gecko) Version/9.1 Safari/601.5.17"
+    # }
 
     rules = [
         Rule(LinkExtractor(allow=r'https://movie.douban.com/top250\?start=\d+.*')),
@@ -27,7 +27,7 @@ class MovieSpider(CrawlSpider):
 
     def start_requests(self):
         for i, url in enumerate(self.start_urls):
-            yield FormRequest(url, headers=self.headers)
+            yield FormRequest(url)
 
     def parse_item(self, response):
         sel = Selector(response)
@@ -38,11 +38,5 @@ class MovieSpider(CrawlSpider):
         item["director"] = sel.xpath('//*[@id="info"]/span[1]/a/text()').extract()
         item["classification"] = sel.xpath('//span[@property="v:genre"]/text()').extract()
         item["actor"] = sel.xpath('//*[@id="actor"]/a/text()').extract()
-
-
-
-
-
-        # print item["name"]
 
         return item
