@@ -34,9 +34,9 @@ class MovieSpider(CrawlSpider):
         item = DoubanMoiveItem()
         item["name"] = sel.xpath('//*[@id="content"]/h1/span[1]/text()').extract()
         item["year"] = sel.xpath('//*[@id="content"]/h1/span[2]/text()').re(r'\((\d+)\)')
-        item["score"] = sel.xpath('//*[@class="rating_num"]/text()').extract()
-        item["director"] = sel.xpath('//*[@id="info"]/span[1]/a/text()').extract()
+        item["score"] = sel.xpath('//*[@property="v:average"]/text()').extract()
+        item["director"] = sel.xpath('//*[@id="info"]/span[1]//a/text()').extract()
         item["classification"] = sel.xpath('//span[@property="v:genre"]/text()').extract()
-        item["actor"] = sel.xpath('//*[@id="actor"]/a/text()').extract()
+        item["actor"] = sel.xpath('//*[@class="actor"]//a/text()').extract()
 
         return item
