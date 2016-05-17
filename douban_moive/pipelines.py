@@ -7,8 +7,8 @@
 from twisted.enterprise import adbapi
 from scrapy import log
 
-import MySQLdb
-
+# import MySQLdb
+from MySQLdb import cursors
 
 class DoubanMoivePipeline(object):
 
@@ -18,10 +18,11 @@ class DoubanMoivePipeline(object):
             db='douban',
             user='root',
             passwd='root',
-            cursorclass=MySQLdb.cursors.DictCursor,
+            cursorclass=cursors.DictCursor,
             charset='utf8',
             use_unicode=False
         )
+
 
     def process_item(self, item, spider):
         query = self.dbpool.runInteraction(self._conditional_insert, item)
@@ -50,7 +51,7 @@ class DoubanMoivePipeline(object):
             tx.execute(\
                 "insert into movie (m_name,m_year,m_score,m_director,m_classification,m_actor) values (%s,%s,%s,%s,%s,%s)", \
                 (item['name'][0], item['year'][0], item['score'][0], item['director'][0], classification, actor))
-            log.msg("Item stored in db: %s" % item, level=log.DEBUG)
+            log.msg("Item stored in db: %s" % item, _level=log.DEBUG)
 
     def handle_error(self, e):
         log.err(e)
