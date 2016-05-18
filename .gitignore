@@ -63,3 +63,4 @@ target/
 *.pyc
 .idea/*
 test*
+*.log
