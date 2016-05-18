@@ -5,7 +5,8 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from twisted.enterprise import adbapi
-from scrapy import log
+
+import logging
 
 # import MySQLdb
 from MySQLdb import cursors
@@ -33,7 +34,7 @@ class DoubanMoivePipeline(object):
         tx.execute("select * from movie where m_name= %s", (item['name'][0],))
         result = tx.fetchone()
         if result:
-            log.msg("Item already exists!")
+            logging.info("Item already exists!")
         else:
 
             classification = actor = ''
@@ -51,7 +52,7 @@ class DoubanMoivePipeline(object):
             tx.execute(\
                 "insert into movie (m_name,m_year,m_score,m_director,m_classification,m_actor) values (%s,%s,%s,%s,%s,%s)", \
                 (item['name'][0], item['year'][0], item['score'][0], item['director'][0], classification, actor))
-            log.msg("Item stored in db: %s" % item, _level=log.DEBUG)
+            logging.info("Item stored in db: %s" % item, _level=log.DEBUG)
 
     def handle_error(self, e):
-        log.err(e)
+        logging.error(e)

@@ -5,6 +5,8 @@ from scrapy import log
 import random
 from scrapy.contrib.downloadermiddleware.useragent import UserAgentMiddleware
 
+import logging
+
 
 # Need to disable the default user-agent in the setting.py, and load the new User Agent
 
@@ -89,5 +91,5 @@ class RotateUserAgentMiddleware(UserAgentMiddleware):
     def process_request(self, request, spider):
         ua = random.choice(self.user_agent_list)
         if ua:
-            log.msg("Current UserAgent: " + ua, level=log.INFO)
+            logging.info("Current UserAgent: " + ua)
             request.headers.setdefault("User-Agent", ua)
