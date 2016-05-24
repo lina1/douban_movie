@@ -8,7 +8,9 @@ from scrapy.http import FormRequest, Request
 
 from douban_moive.items import DoubanMoiveItem
 
-from douban_moive.config import user_config
+from douban_moive.config.user_config import user_pass
+
+import logging
 
 __author__ = 'lina'
 __date__ = '16/5/10'
@@ -19,32 +21,62 @@ class MovieSpider(CrawlSpider):
     allowed_domains = ["douban.com"]
     start_urls = ["https://movie.douban.com/top250"]
 
-    rules = [
-        Rule(LinkExtractor(allow=r'https://movie.douban.com/top250\?start=\d+.*')),
-        Rule(LinkExtractor(allow=r'https://movie.douban.com/subject/\d+'), callback="parse_item"),
-    ]
+    # rules = [
+    #     Rule(LinkExtractor(allow=r'https://movie.douban.com/top250\?start=\d+.*')),
+    #     Rule(LinkExtractor(allow=r'https://movie.douban.com/subject/\d+',),
+    #          callback="parse_item",
+    #          # process_request="add_cookie"
+    #     ),
+    # ]
+
+    # def add_cookie(self, request):
+    #     request.replace(cookies=[
+    #         {'name': 'dbcl2', 'value': '16536825:MaUDdd89GHQ', 'domain': '.douban.com', 'path': '/'},
+    #     ])
+    #     return request
 
     def start_requests(self):
 
-        return [Request("https://accounts.douban.com/login", meta={"cookiejar": 1}, callback=self.request_captcha)]
+        return [Request("https://accounts.douban.com/login", callback=self.post_login, meta={'cookiejar': 1})]
+        # for i, url in enumerate(self.start_urls):
+        #     yield FormRequest(url)
 
     def after_login(self, response):
         for i, url in enumerate(self.start_urls):
-            yield FormRequest(url)
+            yield FormRequest(url,
+                              meta={'cookiejar': response.meta['cookiejar']},
+                              callback=self.go_to_paginator
+                              )
+
+    def go_to_paginator(self, response):
+        for href in response.css('.paginator a::attr(href)'):
+            full_url = response.urljoin(href.extract())
+            yield Request(full_url, meta={'cookiejar': response.meta['cookiejar']}, callback=self.go_to_film_page)
+
+    def go_to_film_page(self, response):
+        for url in response.css('.hd a::attr(href)'):
+            # logging.log(url)
+            yield Request(url.extract(), meta={'cookiejar': response.meta['cookiejar']}, callback=self.parse_item)
 
     def request_captcha(self, response):
 
         # get captcha url
-        captcha_url = response.css('img[id="captcha_image"]::attr(src)').extract()[0]
 
-        # download captcha
-        yield Request(
-            url=captcha_url,
-            meta={
-                'cookiejar': response.meta['cookiejar'],
-            },
-            callback=self.download_captcha
-        )
+        captcha = response.css('img[id="captcha_image"]::attr(src)').extract()
+        if captcha:
+            captcha_url = response.css('img[id="captcha_image"]::attr(src)').extract()[0]
+
+            # download captcha
+            yield Request(
+                url=captcha_url,
+                meta={
+                    'cookiejar': response.meta['cookiejar'],
+                },
+                callback=self.download_captcha
+            )
+
+        else:
+            self.post_login(response)
 
     def download_captcha(self, response):
 
@@ -53,13 +85,14 @@ class MovieSpider(CrawlSpider):
     def post_login(self, response):
 
         return [FormRequest.from_response(response,
+                                          # meta={'cookiejar': response.meta['cookiejar']},
                                           meta={'cookiejar': response.meta['cookiejar']},
                                           formdata={
-                                              'form_email': user_config["email"],
-                                              'form_password': user_config["password"],
+                                              'form_email': user_pass["email"],
+                                              'form_password': user_pass["password"],
                                               'source': 'movie',
                                               'login': '登录',
-                                              'redir': 'https://movie.douban.com',
+                                              # 'redir': 'https://movie.douban.com/top250',
                                               'captcha-solution': ''
                                           },
                                           callback=self.after_login,

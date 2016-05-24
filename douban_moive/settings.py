@@ -51,7 +51,7 @@ NEWSPIDER_MODULE = 'douban_moive.spiders'
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
    # 'douban_moive.middlewares.MyCustomDownloaderMiddleware': 543,
-    'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware': None,
+    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
     'douban_moive.middleware.rotate_useragent.RotateUserAgentMiddleware': 400,
 
 }
@@ -86,3 +86,5 @@ ITEM_PIPELINES = {
 #HTTPCACHE_DIR='httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES=[]
 #HTTPCACHE_STORAGE='scrapy.extensions.httpcache.FilesystemCacheStorage'
+COOKIES_DEBUG = True
+DUPEFILTER_DEBUG = True
