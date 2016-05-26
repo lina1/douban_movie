@@ -10,8 +10,6 @@ from douban_moive.items import DoubanMoiveItem
 
 from douban_moive.config.user_config import user_pass
 
-import logging
-
 __author__ = 'lina'
 __date__ = '16/5/10'
 
@@ -36,7 +34,6 @@ class MovieSpider(CrawlSpider):
     #     return request
 
     def start_requests(self):
-
         return [Request("https://accounts.douban.com/login", callback=self.post_login, meta={'cookiejar': 1})]
         # for i, url in enumerate(self.start_urls):
         #     yield FormRequest(url)
@@ -95,8 +92,8 @@ class MovieSpider(CrawlSpider):
                                               # 'redir': 'https://movie.douban.com/top250',
                                               'captcha-solution': ''
                                           },
-                                          callback=self.after_login,
-                                          dont_filter=True
+                                          callback=self.after_login
+                                          # dont_filter=True
                                           )]
 
     def parse_item(self, response):
